@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full bg-[#1a237e]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Tập Tương Tác: Lộ Trình 8 Bước Kế Hoạch IC</title>
+    <!-- 1. Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Font 'Oswald' (Theo yêu cầu) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 3. Font Awesome (Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --color-primary-dark: #1a237e;
+            --color-primary-light: #5C6BC0;
+            --color-accent-green: #009688;
+            --color-accent-orange: #FF9800;
+        }
+        /* Yêu cầu 1: Font 'Oswald' */
+        body {
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 0.025em; /* Tinh chỉnh khoảng cách chữ cho Oswald */
+        }
+
+        /* Yêu cầu 2: Bảng màu chủ đạo */
+        .bg-primary-dark { background-color: var(--color-primary-dark); }
+        .bg-primary-light { background-color: var(--color-primary-light); }
+        .bg-accent-green { background-color: var(--color-accent-green); }
+        .bg-accent-orange { background-color: var(--color-accent-orange); }
+        
+        .text-primary-light { color: var(--color-primary-light); }
+        .text-accent-green { color: var(--color-accent-green); }
+        .text-accent-orange { color: var(--color-accent-orange); }
+
+        .border-primary-light { border-color: var(--color-primary-light); }
+        .border-accent-orange { border-color: var(--color-accent-orange); }
+
+        /* Yêu cầu 3 & 4: Tính chuyên nghiệp & Trực quan */
+        
+        /* Ẩn các bước */
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+        
+        /* Cấu trúc Tab */
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 500;
+            border-bottom: 4px solid transparent;
+            color: #9CA3AF; /* text-gray-400 */
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        .tab-btn.active {
+            color: var(--color-accent-orange);
+            border-bottom-color: var(--color-accent-orange);
+            font-weight: 600;
+        }
+        .tab-panel {
+            display: none;
+            padding-top: 1.5rem;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        
+        /* Hiệu ứng Feedback (Dark mode) */
+        .feedback {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            font-size: 1rem; /* Cỡ chữ lớn hơn */
+            line-height: 1.6;
+        }
+        .feedback.show {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 1.25rem;
+            padding: 1rem;
+        }
+        /* Màu feedback */
+        .feedback-success { background-color: rgba(0, 150, 136, 0.1); color: var(--color-accent-green); border-left: 4px solid var(--color-accent-green); }
+        .feedback-error { background-color: rgba(239, 68, 68, 0.1); color: #F87171; border-left: 4px solid #EF4444; }
+
+
+        /* Cấu trúc Guide (Dark mode) */
+        .guide-content {
+            color: #D1D5DB; /* text-gray-300 */
+        }
+        .guide-content h3 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600;
+            color: var(--color-primary-light);
+            margin-top: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--color-primary-light);
+            padding-left: 0.75rem;
+        }
+        .guide-content ul {
+            list-style-type: none;
+            padding-left: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .guide-content ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .guide-content ul li::before {
+            content: '\f00c'; /* Check icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 5px;
+            color: var(--color-accent-green);
+        }
+
+        /* AI Assistant Styles (Dark mode) */
+        .ai-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #374151; /* gray-700 */
+            border-radius: 0.375rem;
+            font-family: 'Oswald', sans-serif;
+            background-color: #1F2937; /* gray-800 */
+            color: #F3F4F6; /* gray-100 */
+            font-size: 1rem;
+        }
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--color-primary-light);
+            box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.3);
+        }
+        .ai-output {
+            background-color: #111827; /* gray-900 */
+            border: 1px solid #374151; /* gray-700 */
+            border-radius: 0.375rem;
+            padding: 1.5rem;
+            min-height: 150px;
+            white-space: pre-wrap;
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 0.03em;
+            line-height: 1.7;
+            color: #D1D5DB; /* gray-300 */
+        }
+        .ai-button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--color-accent-orange);
+            color: #111827; /* black */
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .ai-button:disabled {
+            background-color: #4B5563; /* gray-600 */
+            color: #9CA3AF; /* gray-400 */
+            cursor: not-allowed;
+        }
+        .ai-button:hover:not(:disabled) {
+            background-color: #F59E0B; /* amber-500 */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 152, 0, 0.2);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border-left-color: var(--color-accent-orange);
+            animation: spin 1s ease infinite;
+            display: none; /* Ẩn ban đầu */
+            margin: 1.5rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* LỘ TRÌNH VISUAL STEPPER MỚI (Yêu cầu "Visual Narrative") */
+        .stepper-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0.5rem;
+            border-bottom: 1px solid #374151; /* gray-700 */
+        }
+        .stepper-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        .stepper-dot {
+            width: 2.5rem; /* 40px */
+            height: 2.5rem; /* 40px */
+            border-radius: 50%;
+            background-color: #374151; /* gray-700 */
+            border: 3px solid #4B5563; /* gray-600 */
+            color: #6B7280; /* gray-500 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.125rem;
+            transition: all 0.4s ease;
+            z-index: 10;
+        }
+        .stepper-label {
+            position: absolute;
+            top: 3.25rem;
+            width: 100px;
+            text-align: center;
+            font-size: 0.75rem; /* 12px */
+            font-weight: 600;
+            color: #6B7280; /* gray-500 */
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+        }
+        /* Đường nối */
+        .stepper-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 1.25rem; /* Vị trí giữa dot */
+            width: 100%;
+            height: 4px;
+            background-color: #4B5563; /* gray-600 */
+            z-index: 5;
+            transform: translateY(-50%);
+        }
+
+        /* Trạng thái Stepper */
+        .stepper-item.active .stepper-dot {
+            background-color: var(--color-accent-orange);
+            border-color: #F59E0B; /* amber-500 */
+            color: #111827;
+            transform: scale(1.1);
+        }
+        .stepper-item.active .stepper-label {
+            color: var(--color-accent-orange);
+            font-weight: 700;
+        }
+        
+        .stepper-item.completed .stepper-dot {
+            background-color: var(--color-accent-green);
+            border-color: #00796B;
+            color: #E0F2F1;
+        }
+        .stepper-item.completed .stepper-label {
+            color: #D1D5DB; /* gray-300 */
+        }
+        .stepper-item.completed:not(:last-child)::after {
+            background-color: var(--color-accent-green);
+        }
+
+    </style>
+</head>
+<body class="h-full bg-primary-dark">
+
+    <main class="max-w-6xl mx-auto my-8 md:my-16 bg-slate-900 shadow-2xl shadow-black/30 rounded-2xl overflow-hidden border-t-4 border-accent-orange">
+        
+        <!-- TIÊU ĐỀ CHÍNH -->
+        <header class="p-6 md:p-8 bg-slate-900 border-b-2 border-slate-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold tracking-wider text-white">LỘ TRÌNH 8 BƯỚC: LẬP KẾ HOẠCH IC</h1>
+                    <p class="text-lg font-medium mt-1 text-primary-light">HỆ THỐNG DẪN DẮT KẾ HOẠCH TƯƠNG TÁC (AI-POWERED)</p>
+                </div>
+                <i class="fa-solid fa-chart-line text-5xl text-primary-light/50"></i>
+            </div>
+        </header>
+
+        <!-- LỘ TRÌNH VISUAL STEPPER MỚI -->
+        <div class="stepper-container">
+            <!-- JS sẽ điền các trạng thái 'active', 'completed' -->
+            <div id="stepper-1" class="stepper-item">
+                <div class="stepper-dot"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <div class="stepper-label">Đánh giá</div>
+            </div>
+            <div id="stepper-2" class="stepper-item">
+                <div class="stepper-dot"><i class="fa-solid fa-bullseye"></i></div>
+                <div class="stepper-label">Mục tiêu</div>
+            </div>
+            <div id="stepper-3" class="stepper-item">
+                <div class="stepper-dot"><i class="fa-solid fa-users"></i></div>
+                <div class="stepper-label">Khán giả</div>
+            </div>
+            <div id="stepper-4" class="stepper-item">
+                <div class="stepper-dot"><i class="fa-solid fa-house"></i></div>
+                <div class="stepper-label">Thông điệp</div>
+            </div>
+            <div id="stepper-5" class="stepper-item">
+                <div class="stepper-dot"><i class="fa-solid fa-satellite-dish"></i></div>
+                <div class="stepper-label">Kênh</div>
+            </div>
+            <div id="stepper-6" class="stepper-item">
+                <div class="stepper-dot"><i class="fa-solid fa-calendar-days"></i></div>
+                <div class="stepper-label">Lịch trình</div>
+            </div>
+            <div id="stepper-7" class="stepper-item">
+                <div class="stepper-dot"><i class="fa-solid fa-users-gear"></i></div>
+                <div class="stepper-label">Vai trò</div>
+            </div>
+            <div id="stepper-8" class="stepper-item">
+                <div class="stepper-dot"><i class="fa-solid fa-chart-pie"></i></div>
+                <div class="stepper-label">Đo lường</div>
+            </div>
+        </div>
+
+        <!-- NỘI DUNG CÁC BƯỚC (Giữ nguyên cấu trúc, chỉ thay đổi class text) -->
+        <div class="p-6 md:p-10 space-y-6 text-gray-200">
+
+            <!-- BƯỚC 0: GIỚI THIỆU (NovaTech Case Study) -->
+            <div id="step-0" class="step-content active">
+                <h2 class="text-3xl font-bold text-white mb-4">ĐIỂM KHỞI ĐẦU: TRĂN TRỞ CỦA LÃNH ĐẠO</h2>
+                <p class="text-lg text-gray-300 leading-relaxed">
+                    Chào mừng bạn đến với **NovaTech** (550 nhân viên). Với tư cách là Trưởng phòng IC, bạn đang đối mặt với một "nỗi đau" chiến lược:
+                </p>
+                
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-800 p-6 rounded-lg border-l-4 border-red-500">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-envelope-open-text text-4xl text-red-500 mr-4"></i>
+                            <div>
+                                <div class="text-5xl font-bold text-red-400">22%</div>
+                                <div class="text-lg font-semibold text-gray-300">Tỷ lệ Mở Email Chiến lược</div>
+                                <div class="text-sm text-gray-400">(Dưới mức trung bình 45%)</div>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-gray-400">Nhân viên bị "bội thực thông tin" rác, dẫn đến việc họ bỏ lỡ hoàn toàn các thông điệp quan trọng.</p>
+                    </div>
+                    <div class="bg-slate-800 p-6 rounded-lg border-l-4 border-primary-light">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-comments text-4xl text-primary-light mr-4"></i>
+                            <div>
+                                <div class="text-5xl font-bold text-primary-light">MỘT CHIỀU</div>
+                                <div class="text-lg font-semibold text-gray-300">Văn hóa Giao tiếp</div>
+                                <div class="text-sm text-gray-400">(Town Hall không có Q&A thực chất)</div>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-gray-400">Nhân viên "không được lắng nghe". Lòng tin vào lãnh đạo suy giảm, tạo ra nhóm "hoài nghi".</p>
+                    </div>
+                </div>
+                
+                <p class="text-lg text-gray-300 leading-relaxed mt-6">
+                    Nhiệm vụ của bạn: Sử dụng Lộ trình 8 bước để xây dựng một kế hoạch **TÁI THIẾT LÒNG TIN** và **GIA TĂNG TƯƠNG TÁC**.
+                </p>
+                <p class="text-lg text-gray-300 leading-relaxed mt-2">
+                    Nhấn **Bắt đầu** để đi vào Bước 1: Đánh giá.
+                </p>
+            </div>
+            
+            <!-- BƯỚC 1: ĐÁNH GIÁ (Kiểm toán Hiện trạng) -->
+            <section id="step-1" class="step-content">
+                <div class="flex border-b border-slate-700 mb-4">
+                    <button class="tab-btn active" data-step="1" data-tab="guide"><i class="fa-solid fa-book-open mr-2"></i> Hướng dẫn</button>
+                    <button class="tab-btn" data-step="1" data-tab="exercise"><i class="fa-solid fa-pen-ruler mr-2"></i> Bài tập</button>
+                </div>
+
+                <div id="tab-panel-guide-1" class="tab-panel active guide-content">
+                    <h2 class="text-2xl font-bold text-white">Bước 1: Đánh giá - KIỂM TOÁN HIỆN TRẠNG</h2>
+                    <p class="text-lg">Mục tiêu là có bức tranh <strong class="text-accent-orange">trung thực, dựa trên dữ liệu</strong>. Chúng ta đã có dữ liệu định lượng (22%), giờ cần tìm gốc rễ của "vì sao".</p>
+                    <h3>Tư duy Cốt lõi:</h3>
+                    <ul>
+                        <li>Hãy là "Thám tử", không phải "Quan tòa". Tìm kiếm vấn đề, không tìm người để đổ lỗi.</li>
+                        <li>Sử dụng "Tam giác vàng" dữ liệu: Định lượng (Hệ thống), Định tính (Con người), Phân tích (Nội dung).</li>
+                        <li>Hỏi "Tại sao" 5 lần để đào sâu gốc rễ vấn đề "một chiều".</li>
+                    </ul>
+                </div>
+
+                <div id="tab-panel-exercise-1" class="tab-panel">
+                    <p class="text-lg text-gray-200 mb-4">Để đào sâu vấn đề **"nhân viên cảm thấy không được lắng nghe"** (Town Hall một chiều), hành động kiểm toán định tính nào là cần thiết nhất?</p>
+                    <div class="space-y-4">
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="audit-action" value="wrong1" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">A. Gửi một khảo sát ngắn hỏi: "Bạn có thích email của chúng tôi không?"</strong>
+                        </label>
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="audit-action" value="correct" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">B. Tổ chức các buổi **Thảo luận Nhóm (Focus Group)** với nhân viên cấp dưới để lắng nghe về **nỗi đau giao tiếp** và **thông tin họ cần** từ lãnh đạo.</strong>
+                        </label>
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="audit-action" value="wrong2" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">C. Phân tích số lượng Like/Share trên các kênh mạng xã hội nội bộ.</strong>
+                        </label>
+                    </div>
+                    <div id="feedback-step-1" class="feedback rounded-lg text-md"></div>
+                </div>
+            </section>
+
+            <!-- BƯỚC 2: MỤC TIÊU (SMART) - AI POWERED -->
+            <section id="step-2" class="step-content">
+                <div class="flex border-b border-slate-700 mb-4">
+                    <button class="tab-btn active" data-step="2" data-tab="guide"><i class="fa-solid fa-book-open mr-2"></i> Hướng dẫn</button>
+                    <button class="tab-btn" data-step="2" data-tab="exercise"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Trợ lý AI (SMART)</button>
+                </div>
+
+                <div id="tab-panel-guide-2" class="tab-panel active guide-content">
+                    <h2 class="text-2xl font-bold text-white">Bước 2: Mục tiêu - THIẾT LẬP SMART</h2>
+                    <p class="text-lg">Mục tiêu IC phải là <strong class="text-accent-orange">cánh tay nối dài</strong> của mục tiêu kinh doanh. Nó phải giải quyết cả vấn đề **ít người đọc** (kỹ thuật) và **một chiều** (văn hóa).</p>
+                    <h3>Tư duy Cốt lõi:</h3>
+                    <ul>
+                        <li>Mục tiêu của bạn không phải là "gửi email". Mục tiêu là "thay đổi hành vi" hoặc "củng cố nhận thức".</li>
+                        <li>Đo lường "Kết quả" (Outcome), không phải "Đầu ra" (Output).</li>
+                    </ul>
+                </div>
+
+                <div id="tab-panel-exercise-2" class="tab-panel">
+                    <p class="text-lg text-gray-200 mb-4">Sử dụng **Trợ lý AI Chiến lược** để viết mục tiêu SMART cho NovaTech. Cung cấp bối cảnh cho AI:</p>
+                    
+                    <div class="space-y-4 p-6 bg-slate-800 rounded-lg">
+                        <div>
+                            <label for="smart-problem" class="font-semibold text-gray-300 block text-sm uppercase tracking-wider mb-2">1. Vấn đề chính (từ B1):</label>
+                            <input type="text" id="smart-problem" class="ai-input" value="Tỷ lệ mở email 22%, nhân viên cảm thấy không được lắng nghe.">
+                        </div>
+                        <div>
+                            <label for="smart-business-goal" class="font-semibold text-gray-300 block text-sm uppercase tracking-wider mb-2">2. Mục tiêu Kinh doanh liên quan:</label>
+                            <input type="text" id="smart-business-goal" class="ai-input" value="Tái thiết lòng tin, tăng cường sự gắn kết với chiến lược mới.">
+                        </div>
+                        <div>
+                            <label for="smart-timeframe" class="font-semibold text-gray-300 block text-sm uppercase tracking-wider mb-2">3. Khung thời gian:</label>
+                            <input type="text" id="smart-timeframe" class="ai-input" value="Trong 6 tháng tới">
+                        </div>
+                        
+                        <button id="generate-smart-btn" class="ai-button mt-2">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Tạo mục tiêu SMART
+                        </button>
+
+                        <div id="smart-loading" class="spinner"></div>
+
+                        <div id="smart-output" class="ai-output hidden"></div>
+                    </div>
+
+                    <div id="feedback-step-2" class="feedback rounded-lg text-md"></div>
+                </div>
+            </section>
+
+            <!-- BƯỚC 3: KHÁN GIẢ (Persona) -->
+            <section id="step-3" class="step-content">
+                <div class="flex border-b border-slate-700 mb-4">
+                    <button class="tab-btn active" data-step="3" data-tab="guide"><i class="fa-solid fa-book-open mr-2"></i> Hướng dẫn</button>
+                    <button class="tab-btn" data-step="3" data-tab="exercise"><i class="fa-solid fa-pen-ruler mr-2"></i> Bài tập</button>
+                </div>
+
+                <div id="tab-panel-guide-3" class="tab-panel active guide-content">
+                    <h2 class="text-2xl font-bold text-white">Bước 3: Khán giả - THẤU HIỂU & PHÂN KHÚC</h2>
+                    <p class="text-lg">Chuyển từ "phát thanh" (broadcast) sang <strong class="text-accent-orange">"gửi thư tay"</strong> (narrowcast). Khán giả của bạn không đồng nhất.</p>
+                    <h3>Tư duy Cốt lõi:</h3>
+                    <ul>
+                        <li>Sự đồng cảm là Siêu năng lực. Xây dựng chân dung (Persona) đại diện.</li>
+                        <li>Luôn tự hỏi "WIIFM?" (What’s In It For Me?) - Điều này có lợi gì cho người nhận?</li>
+                        <li>Phân khúc theo Thái độ: Người Đổi mới, Người Hoài nghi, Người Thụ động.</li>
+                    </ul>
+                </div>
+
+                <div id="tab-panel-exercise-3" class="tab-panel">
+                    <p class="text-lg text-gray-200 mb-4">Để giải quyết vấn đề **"Town Hall một chiều"**, bạn cần thấu hiểu **nhóm Khán giả hay Hoài nghi (Skeptics)**. Họ quan tâm điều gì nhất khi lãnh đạo nói về chiến lược?</p>
+                    
+                    <div class="space-y-4">
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="persona-choice" value="wrong1" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">A. Họ có được giảm giá sản phẩm công ty không.</strong>
+                        </label>
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="persona-choice" value="wrong2" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">B. Màu sắc chủ đạo của slide trình bày có đủ đẹp không.</strong>
+                        </label>
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="persona-choice" value="correct" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">C. **Họ sẽ bị ảnh hưởng thế nào** (ví dụ: công việc của họ có bị thay đổi/biến mất không) và **dữ liệu nào chứng minh** chiến lược này khả thi.</strong>
+                        </label>
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="persona-choice" value="wrong3" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">D. Họ muốn biết về tiệc cuối năm hơn là chiến lược.</strong>
+                        </label>
+                    </div>
+
+                    <div id="feedback-step-3" class="feedback rounded-lg text-md"></div>
+                </div>
+            </section>
+
+            <!-- BƯỚC 4: THÔNG ĐIỆP (Tường thuật) - AI POWERED -->
+            <section id="step-4" class="step-content">
+                <div class="flex border-b border-slate-700 mb-4">
+                    <button class="tab-btn active" data-step="4" data-tab="guide"><i class="fa-solid fa-book-open mr-2"></i> Hướng dẫn</button>
+                    <button class="tab-btn" data-step="4" data-tab="exercise"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Trợ lý AI (Thông điệp)</button>
+                </div>
+
+                <div id="tab-panel-guide-4" class="tab-panel active guide-content">
+                    <h2 class="text-2xl font-bold text-white">Bước 4: Thông điệp - XÂY DỰNG TƯỜNG THUẬT</h2>
+                    <p class="text-lg">Hãy là <strong class="text-accent-orange">"người kể chuyện"</strong> (Storyteller), không phải "người đưa tin" (Reporter). Thông điệp cốt lõi phải đơn giản, dễ nhớ.</p>
+                    <h3>Tư duy Cốt lõi:</h3>
+                    <ul>
+                        <li>Sử dụng "Ngôi nhà Thông điệp": 1 Mái nhà (Bao trùm), 3 Cột trụ (Chi tiết).</li>
+                        <li>Thông điệp phải giải quyết "WIIFM" của nhóm Hoài nghi.</li>
+                        <li>Nhất quán: Lặp lại 3 Cột trụ trên mọi kênh.</li>
+                    </ul>
+                </div>
+
+                <div id="tab-panel-exercise-4" class="tab-panel">
+                    <p class="text-lg text-gray-200 mb-4">Hãy dùng **Trợ lý AI Chiến lược** để xây dựng "Ngôi nhà Thông điệp" (Message House) cho chiến dịch Tái thiết Lòng tin của NovaTech.</p>
+                    
+                    <div class="space-y-4 p-6 bg-slate-800 rounded-lg">
+                        <div>
+                            <label for="message-goal" class="font-semibold text-gray-300 block text-sm uppercase tracking-wider mb-2">1. Mục tiêu chiến dịch (từ B2):</label>
+                            <input type="text" id="message-goal" class="ai-input" value="Tăng mức độ nhân viên cảm thấy 'được lắng nghe' lên 55%.">
+                        </div>
+                        <div>
+                            <label for="message-audience" class="font-semibold text-gray-300 block text-sm uppercase tracking-wider mb-2">2. Khán giả chính (từ B3):</Vlabel>
+                            <input type="text" id="message-audience" class="ai-input" value="Nhóm Hoài nghi (Skeptics) và toàn thể nhân viên.">
+                        </div>
+                        
+                        <button id="generate-message-btn" class="ai-button mt-2">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Tạo Ngôi nhà Thông điệp
+                        </button>
+
+                        <div id="message-loading" class="spinner"></div>
+
+                        <div id="message-output" class="ai-output hidden"></div>
+                    </div>
+
+                    <div id="feedback-step-4" class="feedback rounded-lg text-md"></div>
+                </div>
+            </section>
+
+            <!-- BƯỚC 5: KÊNH (Ma trận) -->
+            <section id="step-5" class="step-content">
+                <div class="flex border-b border-slate-700 mb-4">
+                    <button class="tab-btn active" data-step="5" data-tab="guide"><i class="fa-solid fa-book-open mr-2"></i> Hướng dẫn</button>
+                    <button class="tab-btn" data-step="5" data-tab="exercise"><i class="fa-solid fa-pen-ruler mr-2"></i> Bài tập</button>
+                </div>
+
+                <div id="tab-panel-guide-5" class="tab-panel active guide-content">
+                    <h2 class="text-2xl font-bold text-white">Bước 5: Kênh - LỰA CHỌN MA TRẬN</h2>
+                    <p class="text-lg"><strong class="text-accent-orange">Kênh truyền thông chính là một phần của thông điệp.</strong> Một thông điệp thay đổi chiến lược không thể gửi qua email rác.</p>
+                    <h3>Tư duy Cốt lõi:</h3>
+                    <ul>
+                        <li>Email cho thông báo chính thức (Official).</li>
+                        <li>Slack/Teams cho thảo luận nhanh (Informal).</li>
+                        <li>Intranet là "Nguồn chân lý" cho tài liệu (Source of Truth).</li>
+                        <li>Town Hall / Video cho Tầm nhìn & Cảm xúc (Inspirational).</li>
+                    </ul>
+                </div>
+
+                <div id="tab-panel-exercise-5" class="tab-panel">
+                    <p class="text-lg text-gray-200 mb-4">Để giải quyết vấn đề **Town Hall một chiều** (ít Q&A), bạn nên tái cấu trúc kênh Q&A như thế nào?</p>
+                    
+                    <div class="space-y-4 p-6 bg-slate-800 rounded-lg">
+                        <label class="font-semibold text-gray-200 block text-lg mb-2">1. Kênh thu thập câu hỏi **trước** Town Hall (Cần ẩn danh, dễ tổng hợp):</label>
+                        <select id="channel-1" class="w-full p-3 border-2 border-slate-700 rounded-md outline-none bg-slate-900 text-white text-lg">
+                            <option value="">-- Chọn kênh --</option>
+                            <option value="wrong">Email cá nhân của CEO (Gây e ngại)</option>
+                            <option value="correct">Hệ thống Khảo sát/Form ẩn danh (An toàn, dễ tổng hợp)</option>
+                            <option value="wrong">Kênh Slack #TownHall (Mất tính ẩn danh)</option>
+                        </select>
+
+                        <label class="font-semibold text-gray-200 block text-lg mt-4 mb-2">2. Kênh trả lời câu hỏi **sau** Town Hall (Cần minh bạch, lưu trữ):</label>
+                        <select id="channel-2" class="w-full p-3 border-2 border-slate-700 rounded-md outline-none bg-slate-900 text-white text-lg">
+                            <option value="">-- Chọn kênh --</option>
+                            <option value="wrong">Chỉ trả lời miệng trong cuộc họp (Dễ bị quên, một chiều)</option>
+                            <option value="correct">Tài liệu tổng hợp Q&A trên Intranet (Minh bạch, nguồn chân lý)</option>
+                            <option value="wrong">Gửi email cá nhân cho người hỏi (Không minh bạch)</option>
+                        </select>
+                    </div>
+
+                    <div id="feedback-step-5" class="feedback rounded-lg text-md"></div>
+                </div>
+            </section>
+
+            <!-- BƯỚC 6: LỊCH TRÌNH (Biên tập) -->
+            <section id="step-6" class="step-content">
+                <div class="flex border-b border-slate-700 mb-4">
+                    <button class="tab-btn active" data-step="6" data-tab="guide"><i class="fa-solid fa-book-open mr-2"></i> Hướng dẫn</button>
+                    <button class="tab-btn" data-step="6" data-tab="exercise"><i class="fa-solid fa-pen-ruler mr-2"></i> Bài tập</button>
+                </div>
+
+                <div id="tab-panel-guide-6" class="tab-panel active guide-content">
+                    <h2 class="text-2xl font-bold text-white">Bước 6: Lịch trình - TẠO LỊCH BIÊN TẬP</h2>
+                    <p class="text-lg">Chuyển từ <strong class="text-accent-orange">phản ứng, "chữa cháy"</strong> sang <strong class="text-accent-green">chủ động, có kế hoạch</strong>. Điều này tạo nhịp điệu và thói quen cho độc giả.</p>
+                    <h3>Tư duy Cốt lõi (Quy tắc 70/20/10):</h3>
+                    <ul>
+                        <li>**70%** (Đã lên kế hoạch): Các bản tin chiến lược, thông điệp định kỳ (Push).</li>
+                        <li>**20%** (Tương tác): Các câu chuyện nhân viên, Q&A, nội dung sáng tạo (Pull).</li>
+                        <li>**10%** (Đột xuất): Khủng hoảng, thông báo khẩn (Reactive).</li>
+                    </ul>
+                </div>
+
+                <div id="tab-panel-exercise-6" class="tab-panel">
+                    <p class="text-lg text-gray-200 mb-4">Để giải quyết **Open Rate 22%** (do nhàm chán) và **bội thực email**, chiến lược nội dung 70% (đã lên kế hoạch) nào là hiệu quả nhất?</p>
+                    
+                    <div class="space-y-4">
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="schedule-priority" value="wrong1" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">A. Giữ nguyên Bản tin tuần (70%) nhưng thêm nhiều ảnh động (GIF) hơn.</strong>
+                        </label>
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="schedule-priority" value="wrong2" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">B. Hàng ngày: Gửi email nhắc nhở về các quy tắc tuân thủ (Compliance rules).</strong>
+                        </label>
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="schedule-priority" value="correct" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">C. Chuyển từ Bản tin tuần dài (Email) sang **"Video Tóm tắt 5 phút từ CEO/Lãnh đạo"** (Kênh Video) 2 lần/tháng (Nội dung quan trọng, hấp dẫn hơn).</strong>
+                        </label>
+                    </div>
+
+                    <div id="feedback-step-6" class="feedback rounded-lg text-md"></div>
+                </div>
+            </section>
+
+            <!-- BƯỚC 7: VAI TRÒ (RACI) -->
+            <section id="step-7" class="step-content">
+                <div class="flex border-b border-slate-700 mb-4">
+                    <button class="tab-btn active" data-step="7" data-tab="guide"><i class="fa-solid fa-book-open mr-2"></i> Hướng dẫn</button>
+                    <button class="tab-btn" data-step="7" data-tab="exercise"><i class="fa-solid fa-pen-ruler mr-2"></i> Bài tập</button>
+                </div>
+
+                <div id="tab-panel-guide-7" class="tab-panel active guide-content">
+                    <h2 class="text-2xl font-bold text-white">Bước 7: Vai trò - PHÂN CÔNG TRÁCH NHIỆM (RACI)</h2>
+                    <p class="text-lg">Sử dụng ma trận **RACI** để tạo sự <strong class="text-accent-orange">rõ ràng tuyệt đối</strong>. Đây là chìa khóa để giải quyết vấn đề "một chiều" và đảm bảo phản hồi được xử lý.</p>
+                    <h3>Tư duy Cốt lõi (Quy tắc RACI):</h3>
+                    <ul>
+                        <li>**R (Responsible):** Người thực hiện công việc (Người làm).</li>
+                        <li>**A (Accountable):** Người chịu trách nhiệm cuối cùng (Luôn chỉ **một** người).</li>
+                        <li>**C (Consulted):** Người được hỏi ý kiến (2 chiều).</li>
+                        <li>**I (Informed):** Người được thông báo (1 chiều).</li>
+                    </ul>
+                </div>
+
+                <div id="tab-panel-exercise-7" class="tab-panel">
+                    <p class="text-lg text-gray-200 mb-4">Trong quy trình **"Xử lý các câu hỏi Q&A ẩn danh sau Town Hall"**, hãy gán vai trò RACI:</p>
+                    
+                    <div class="space-y-4 p-6 bg-slate-800 rounded-lg">
+                        <label class="font-semibold text-gray-200 block text-lg mb-2">1. Trưởng phòng IC (Người tổng hợp, biên tập Q&A thành tài liệu):</label>
+                        <select id="raci-1" class="w-full p-3 border-2 border-slate-700 rounded-md outline-none bg-slate-900 text-white text-lg">
+                            <option value="">-- Chọn vai trò --</option>
+                            <option value="I">I (Informed)</option>
+                            <option value="R">R (Responsible)</option>
+                            <option value="A">A (Accountable)</option>
+                        </select>
+
+                        <label class="font-semibold text-gray-200 block text-lg mt-4 mb-2">2. Giám đốc Nhân sự (Người chịu trách nhiệm xác nhận tính chính xác và phê duyệt phản hồi):</label>
+                        <select id="raci-2" class="w-full p-3 border-2 border-slate-700 rounded-md outline-none bg-slate-900 text-white text-lg">
+                            <option value="">-- Chọn vai trò --</option>
+                            <option value="R">R (Responsible)</option>
+                            <option value="C">C (Consulted)</option>
+                            <option value="A">A (Accountable)</option>
+                        </select>
+                    </div>
+
+                    <div id="feedback-step-7" class="feedback rounded-lg text-md"></div>
+                </div>
+            </section>
+
+            <!-- BƯỚC 8: ĐO LƯỜNG (KPI) -->
+            <section id="step-8" class="step-content">
+                <div class="flex border-b border-slate-700 mb-4">
+                    <button class="tab-btn active" data-step="8" data-tab="guide"><i class="fa-solid fa-book-open mr-2"></i> Hướng dẫn</button>
+                    <button class="tab-btn" data-step="8" data-tab="exercise"><i class="fa-solid fa-pen-ruler mr-2"></i> Bài tập</button>
+                </div>
+
+                <div id="tab-panel-guide-8" class="tab-panel active guide-content">
+                    <h2 class="text-2xl font-bold text-white">Bước 8: Đo lường - LẮNG NGHE & ĐIỀU CHỈNH</h2>
+                    <p class="text-lg">Hãy là <strong class="text-accent-orange">"nhà khoa học"</strong>. Đo lường phải chứng minh **giá trị và tác động** (Kết quả), không chỉ **đầu ra** (Số lượng bài viết).</p>
+                    <h3>Tư duy Cốt lõi:</h3>
+                    <ul>
+                        <li>Đo lường "Kết quả" (Outcome): Tập trung vào các chỉ số thay đổi hành vi/nhận thức.</li>
+                        <li>Kết nối KPI: KPI phải trả lời mục tiêu SMART (Bước 2).</li>
+                        <li>KPI của "Lắng nghe" là gì? Đó là Khảo sát (Sentiment) và Tỷ lệ Tương tác 2 chiều (Q&A).</li>
+                    </ul>
+                </div>
+
+                <div id="tab-panel-exercise-8" class="tab-panel">
+                    <p class="text-lg text-gray-200 mb-4">Mục tiêu của bạn là **tăng mức độ nhân viên cảm thấy "được lắng nghe" lên 55%**. KPI nào sau đây **ÍT LIÊN QUAN NHẤT** để đo lường mục tiêu này?</p>
+                    
+                    <div class="space-y-4">
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="kpi-choice" value="wrong1" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">A. Tỷ lệ tham gia Town Hall và tỷ lệ câu hỏi được gửi ẩn danh (cho thấy sự tương tác 2 chiều).</strong>
+                        </label>
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="kpi-choice" value="correct" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">B. Số lượng nhân viên đã tham gia Tiệc Gắn kết Cuối năm (KPI hoạt động, không liên quan trực tiếp đến lắng nghe).</strong>
+                        </label>
+                        <label class="block p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-primary-light cursor-pointer transition-all">
+                            <input type="radio" name="kpi-choice" value="wrong2" class="mr-3 transform scale-125 accent-accent-orange">
+                            <strong class="text-lg text-gray-100">C. Tỷ lệ nhân viên đồng ý với câu nói "Tôi cảm thấy lãnh đạo quan tâm đến ý kiến của tôi" (Đo bằng khảo sát).</strong>
+                        </label>
+                    </div>
+
+                    <div id="feedback-step-8" class="feedback rounded-lg text-md"></div>
+                </div>
+            </section>
+
+            <!-- BƯỚC 9: HOÀN THÀNH -->
+             <section id="step-9" class="step-content">
+                <h2 class="text-4xl font-bold text-accent-green mb-6 text-center">HOÀN THÀNH LỘ TRÌNH!</h2>
+                <p class="text-xl text-gray-200 mb-6 text-center">Bạn đã hoàn thành xuất sắc nhiệm vụ xây dựng khung chiến lược truyền thông nội bộ 8 bước cho **NovaTech**.<br>Bạn đã biến **"Mất Niềm tin"** thành một kế hoạch **"Tái thiết Lòng tin"** rõ ràng.</p>
+                <div class="p-8 bg-slate-800 border-t-4 border-accent-green rounded-lg">
+                    <h3 class="font-bold text-2xl text-white mb-4">TÓM TẮT KẾ HOẠCH HÀNH ĐỘNG CỦA BẠN:</h3>
+                    <ul class="list-disc list-inside text-gray-200 space-y-2 text-lg">
+                        <li>**Vấn đề:** Open Rate 22%, Mất niềm tin (một chiều).</li>
+                        <li>**Mục tiêu (B2):** Tăng Open Rate lên 50% VÀ Tăng mức độ "được lắng nghe" lên 55%.</li>
+                        <li>**Thông điệp (B4):** **"Lắng nghe, Minh bạch, Hành động"** (Tái thiết lòng tin).</li>
+                        <li>**Hành động Chính (B5-B6):** Thay Bản tin Email bằng **Video Tóm tắt từ CEO** (hấp dẫn hơn), Áp dụng **Form ẩn danh** trước Town Hall (tương tác 2 chiều).</li>
+                        <li>**Thành công (B8):** Đo lường bằng Khảo sát (mức độ "được lắng nghe") và Open Rate/CTR.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- KHU VỰC ĐIỀU KHIỂN -->
+            <footer class="mt-10 pt-6 border-t border-slate-700 flex flex-col sm:flex-row sm:justify-between items-center">
+                <button id="prev-btn" class="py-3 px-6 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold shadow-lg transition-all opacity-50 cursor-not-allowed w-full sm:w-auto mb-2 sm:mb-0 uppercase tracking-wide">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Quay lại
+                </button>
+                <div id="step-indicator-text" class="text-sm text-gray-400 font-medium uppercase tracking-wider mb-2 sm:mb-0">Bước 0 / 8</div>
+                <button id="next-btn" class="py-3 px-6 rounded-lg bg-accent-orange hover:bg-amber-500 text-black font-bold shadow-lg transition-all opacity-50 cursor-not-allowed w-full sm:w-auto uppercase tracking-wide">
+                    Bắt đầu <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </footer>
+
+        </div>
+        
+        <!-- Yêu cầu 3: Footer -->
+        <footer class="text-center p-4 bg-slate-900 border-t border-slate-800">
+            <p class="text-sm text-gray-500 font-semibold tracking-wider">Rosie Đào Hạnh Giang - CEO Build Talents</p>
+        </footer>
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- KHAI BÁO BIẾN ---
+    let currentStep = 0;
+    const totalSteps = 9; // 0 (Intro) đến 9 (Hoàn thành)
+    
+    const steps = document.querySelectorAll('.step-content');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const stepIndicator = document.getElementById('step-indicator-text');
+    const stepperDots = document.querySelectorAll('.stepper-item');
+
+    // AI State
+    let isSmartGenerated = false;
+    let isMessageGenerated = false;
+
+    // --- CÁC HÀM TIỆN ÍCH ---
+
+    // Hàm cập nhật Lộ trình Trực quan (Visual Stepper) MỚI
+    function updateStepper(stepIndex) {
+        stepperDots.forEach((item, idx) => {
+            item.classList.remove('active', 'completed');
+            const stepNum = idx + 1;
+
+            if (stepNum < stepIndex) {
+                item.classList.add('completed');
+            } else if (stepNum === stepIndex) {
+                item.classList.add('active');
+            }
+        });
+    }
+
+    // Hàm hiển thị bước
+    function showStep(stepIndex) {
+        steps.forEach(step => step.classList.remove('active'));
+        
+        const activeStep = document.getElementById(`step-${stepIndex}`);
+        if (activeStep) {
+            activeStep.classList.add('active');
+        }
+
+        // Cập nhật Stepper
+        if (stepIndex === 0) {
+             updateStepper(1); // Hiển thị bước 1 là active khi ở intro
+             stepperDots.forEach(item => item.classList.remove('active', 'completed')); // Reset
+        } else if (stepIndex < totalSteps) {
+             updateStepper(stepIndex);
+        } else {
+             updateStepper(totalSteps); // Hoàn thành tất cả
+             stepperDots.forEach(item => item.classList.add('completed'));
+        }
+        
+        // Cập nhật chỉ báo bước
+        if (stepIndex > 0 && stepIndex < totalSteps) {
+            stepIndicator.textContent = `Bước ${stepIndex} / ${totalSteps - 1}`;
+            switchTab(stepIndex, 'guide'); // Mặc định về Hướng dẫn
+        } else if (stepIndex === 0) {
+            stepIndicator.textContent = `Bước 0 / ${totalSteps - 1}`;
+        } else {
+            stepIndicator.textContent = "Hoàn thành!";
+        }
+        
+        // Cập nhật trạng thái nút
+        prevBtn.disabled = (stepIndex === 0);
+        prevBtn.classList.toggle('opacity-50', stepIndex === 0);
+        prevBtn.classList.toggle('cursor-not-allowed', stepIndex === 0);
+        
+        if (stepIndex < totalSteps) {
+            if (stepIndex === 0) {
+                // Bước 0: Bắt đầu
+                enableNextButton(true, 'Bắt đầu');
+            } else {
+                validateStep(stepIndex);
+            }
+        } else {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            stepIndicator.style.display = 'none';
+        }
+    }
+
+    // Hàm hiển thị phản hồi
+    function showFeedback(elementId, message, isSuccess) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        
+        el.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-check-circle' : 'fa-times-circle'} mr-2"></i> ${message}`;
+        el.classList.remove('feedback-success', 'feedback-error');
+
+        if (isSuccess === true) {
+            el.classList.add('feedback-success');
+        } else if (isSuccess === false) {
+            el.classList.add('feedback-error');
+        }
+        
+        el.classList.add('show');
+    }
+    
+    // Hàm kích hoạt nút "Tiếp theo"
+    function enableNextButton(enable, text = 'Tiếp theo') {
+        nextBtn.disabled = !enable;
+        nextBtn.innerHTML = `${text} <i class="fa-solid fa-arrow-right ml-2"></i>`;
+        
+        nextBtn.classList.toggle('opacity-50', !enable);
+        nextBtn.classList.toggle('cursor-not-allowed', !enable);
+        nextBtn.classList.toggle('bg-accent-orange', enable);
+        nextBtn.classList.toggle('hover:bg-amber-500', enable);
+        nextBtn.classList.toggle('bg-gray-600', !enable);
+    }
+    
+    // Hàm quản lý Tab
+    function switchTab(stepIndex, tabName) {
+        const currentStepEl = document.getElementById(`step-${stepIndex}`);
+        if (!currentStepEl) return;
+
+        const tabButtons = currentStepEl.querySelectorAll('.tab-btn');
+        const tabPanels = currentStepEl.querySelectorAll('.tab-panel');
+
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabPanels.forEach(panel => panel.classList.remove('active'));
+
+        const activeButton = currentStepEl.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+        const activePanel = currentStepEl.querySelector(`#tab-panel-${tabName}-${stepIndex}`);
+
+        if (activeButton) activeButton.classList.add('active');
+        if (activePanel) activePanel.classList.add('active');
+    }
+
+    function initTabs() {
+        const allTabButtons = document.querySelectorAll('.tab-btn');
+        allTabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const step = btn.dataset.step;
+                const tab = btn.dataset.tab;
+                switchTab(step, tab);
+            });
+        });
+    }
+
+    // --- CÁC HÀM XÁC THỰC (VALIDATION) CHO TỪNG BƯỚC ---
+
+    function validateStep(stepIndex) {
+        switch (stepIndex) {
+            case 1: validateStep1(); break;
+            case 2: validateStep2(); break;
+            case 3: validateStep3(); break;
+            case 4: validateStep4(); break;
+            case 5: validateStep5(); break;
+            case 6: validateStep6(); break;
+            case 7: validateStep7(); break;
+            case 8: validateStep8(); break;
+            default: enableNextButton(false);
+        }
+    }
+    
+    // B1: Đánh giá
+    function validateStep1() {
+        const selected = document.querySelector('input[name="audit-action"]:checked');
+
+        if (selected && selected.value === 'correct') {
+            showFeedback('feedback-step-1', '**Tuyệt vời!** Thảo luận Nhóm là phương pháp định tính hiệu quả nhất để **đào sâu nỗi đau** và tìm ra **ý kiến chân thật** (vì nó ẩn danh và tập trung vào trải nghiệm).', true);
+            enableNextButton(true);
+        } else if (selected) {
+            let message = '**Chưa chính xác.** Khảo sát (A) chỉ là Định lượng. Phân tích Like/Share (C) chỉ là Phù phiếm. Hãy chọn phương pháp giúp bạn LẮNG NGHE sâu nhất.';
+            showFeedback('feedback-step-1', message, false);
+            enableNextButton(false);
+        } else {
+            document.getElementById('feedback-step-1').classList.remove('show');
+            enableNextButton(false);
+        }
+    }
+
+    // B2: Mục tiêu (AI)
+    function validateStep2() {
+        if (isSmartGenerated) {
+            showFeedback('feedback-step-2', '**Đã tạo mục tiêu!** AI đã cung cấp một mục tiêu SMART chiến lược. Hãy xem xét và sử dụng nó cho các bước tiếp theo.', true);
+            enableNextButton(true);
+        } else {
+            enableNextButton(false);
+             document.getElementById('feedback-step-2').classList.remove('show');
+        }
+    }
+
+    // B3: Khán giả
+    function validateStep3() {
+        const selection = document.querySelector('input[name="persona-choice"]:checked');
+        if (selection && selection.value === 'correct') {
+            showFeedback('feedback-step-3', '**Chính xác!** Nhóm hoài nghi không quan tâm đến tầm nhìn mơ hồ. Họ cần biết **WIIFM (What’s In It For Me)** và cần **Dữ liệu** để tin tưởng. Thông điệp phải cực kỳ thực tế.', true);
+            enableNextButton(true);
+        } else if (selection) {
+            showFeedback('feedback-step-3', '**Chưa phù hợp.** Khán giả hoài nghi là nhóm đòi hỏi cao nhất. Họ cần biết chiến lược này ảnh hưởng trực tiếp đến họ như thế nào, không phải về những điều chung chung (A) hay giải trí (D).', false);
+            enableNextButton(false);
+        } else {
+            document.getElementById('feedback-step-3').classList.remove('show');
+            enableNextButton(false);
+        }
+    }
+
+    // B4: Thông điệp (AI)
+    function validateStep4() {
+         if (isMessageGenerated) {
+            showFeedback('feedback-step-4', '**Đã tạo thông điệp!** Một "Ngôi nhà Thông điệp" rõ ràng là nền tảng cho sự nhất quán và tái thiết lòng tin.', true);
+            enableNextButton(true);
+        } else {
+            enableNextButton(false);
+            document.getElementById('feedback-step-4').classList.remove('show');
+        }
+    }
+
+    // B5: Kênh
+    function validateStep5() {
+        const c1 = document.getElementById('channel-1').value;
+        const c2 = document.getElementById('channel-2').value;
+
+        if (c1 === 'correct' && c2 === 'correct') {
+            showFeedback('feedback-step-5', '**Tuyệt vời!** **Form ẩn danh** giúp nhân viên thoải mái gửi câu hỏi (tăng số lượng Q&A). **Intranet** giúp công ty minh bạch và lưu trữ câu trả lời, xây dựng lòng tin sau cuộc họp.', true);
+            enableNextButton(true);
+        } else if (c1 || c2) {
+            showFeedback('feedback-step-5', '**Xem xét lại vai trò kênh.** Kênh Q&A phải đảm bảo **tính ẩn danh** (để có câu hỏi thật) và **tính minh bạch** (để chứng minh lãnh đạo đã trả lời).', false);
+            enableNextButton(false);
+        } else {
+            document.getElementById('feedback-step-5').classList.remove('show');
+            enableNextButton(false);
+        }
+    }
+
+    // B6: Lịch trình
+    function validateStep6() {
+        const selection = document.querySelector('input[name="schedule-priority"]:checked');
+        if (selection && selection.value === 'correct') {
+            showFeedback('feedback-step-6', '**Chính xác!** Chuyển sang Video tóm tắt (hoặc các kênh giàu phương tiện khác) giải quyết cả hai vấn đề: Nội dung **hấp dẫn** hơn (tăng Open Rate) và **ít tốn thời gian** hơn (giảm cảm giác bội thực).', true);
+            enableNextButton(true);
+        } else if (selection) {
+            showFeedback('feedback-step-6', '**Chưa chiến lược.** Giữ email (A) hay gửi thêm email (B) sẽ chỉ làm trầm trọng thêm vấn đề bội thực thông tin. Cần một sự thay đổi về phương tiện.', false);
+            enableNextButton(false);
+        } else {
+            document.getElementById('feedback-step-6').classList.remove('show');
+            enableNextButton(false);
+        }
+    }
+
+    // B7: Vai trò
+    function validateStep7() {
+        const r1 = document.getElementById('raci-1').value;
+        const r2 = document.getElementById('raci-2').value;
+
+        if (r1 === 'R' && r2 === 'A') {
+            showFeedback('feedback-step-7', '**Chính xác!** Trưởng phòng IC là **R (Responsible)** cho việc chuẩn bị tài liệu. Giám đốc Nhân sự (hoặc CEO) là **A (Accountable)**, người phê duyệt và chịu trách nhiệm cuối cùng về tính chính xác của phản hồi, đặc biệt là các vấn đề nhạy cảm.', true);
+            enableNextButton(true);
+        } else if (r1 || r2) {
+            showFeedback('feedback-step-7', '**Xem lại quy tắc RACI.** **R** là người làm (Biên tập). **A** là người quyết định cuối cùng (Chịu trách nhiệm cho nội dung nhạy cảm).', false);
+            enableNextButton(false);
+        } else {
+            document.getElementById('feedback-step-7').classList.remove('show');
+            enableNextButton(false);
+        }
+    }
+
+    // B8: Đo lường
+    function validateStep8() {
+        const selection = document.querySelector('input[name="kpi-choice"]:checked');
+        if (selection && selection.value === 'correct') {
+            showFeedback('feedback-step-8', '**Chính xác!** Số lượng nhân viên tham gia tiệc cuối năm (B) không liên quan trực tiếp đến cảm giác được lắng nghe. Mục tiêu này phải được đo bằng **Khảo sát** (C) hoặc **Tương tác Q&A** (A).', true);
+            enableNextButton(true, 'Hoàn thành');
+        } else if (selection) {
+            showFeedback('feedback-step-8', '**Chưa đúng.** Hãy tìm KPI không liên quan đến mục tiêu LẮNG NGHE. KPI phải là chỉ số VÔ NGHĨA trong bối cảnh này.', false);
+            enableNextButton(false);
+        } else {
+            document.getElementById('feedback-step-8').classList.remove('show');
+            enableNextButton(false);
+        }
+    }
+
+    // --- GẮN KẾT SỰ KIỆN (EVENT LISTENERS) ---
+    
+    // Nút điều hướng
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentStep < totalSteps) {
+            if (currentStep === 0 || !nextBtn.disabled) { 
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+    });
+
+    // Gắn listener cho các bước không phải AI
+    document.querySelectorAll('input[name="audit-action"]').forEach(cb => {
+        cb.addEventListener('change', () => validateStep(1));
+    });
+    document.querySelectorAll('input[name="persona-choice"]').forEach(cb => {
+        cb.addEventListener('change', () => validateStep(3));
+    });
+    document.getElementById('channel-1').addEventListener('change', () => validateStep(5));
+    document.getElementById('channel-2').addEventListener('change', () => validateStep(5));
+    document.querySelectorAll('input[name="schedule-priority"]').forEach(cb => {
+        cb.addEventListener('change', () => validateStep(6));
+    });
+    document.getElementById('raci-1').addEventListener('change', () => validateStep(7));
+    document.getElementById('raci-2').addEventListener('change', () => validateStep(7));
+    document.querySelectorAll('input[name="kpi-choice"]').forEach(cb => {
+        cb.addEventListener('change', () => validateStep(8));
+    });
+
+    // --- TÍCH HỢP GEMINI AI ---
+    
+    const apiKey = ""; // API Key sẽ được Canvas cung cấp khi chạy
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+    /**
+     * Hàm gọi Gemini API
+     * @param {string} prompt - Câu lệnh gửi cho AI
+     * @param {string} systemInstruction - Hướng dẫn hệ thống cho AI
+     * @param {HTMLElement} outputElement - Element để hiển thị kết quả
+     * @param {HTMLElement} loadingElement - Element spinner
+     * @param {HTMLElement} buttonElement - Nút bấm để vô hiệu hóa
+     * @returns {Promise<string|null>} - Trả về text nội dung hoặc null nếu lỗi
+     */
+    async function callGemini(prompt, systemInstruction, outputElement, loadingElement, buttonElement) {
+        loadingElement.style.display = 'block';
+        outputElement.classList.add('hidden');
+        buttonElement.disabled = true;
+
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: {
+                parts: [{ text: systemInstruction }]
+            },
+        };
+
+        let text = null;
+        try {
+            const response = await fetchWithBackoff(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API error: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                text = candidate.content.parts[0].text;
+                outputElement.textContent = text;
+            } else {
+                outputElement.textContent = "Lỗi: Không nhận được phản hồi hợp lệ từ AI.";
+            }
+        } catch (error) {
+            console.error("Lỗi gọi API:", error);
+            outputElement.textContent = `Lỗi: ${error.message}. Vui lòng thử lại.`;
+        } finally {
+            loadingElement.style.display = 'none';
+            outputElement.classList.remove('hidden');
+            buttonElement.disabled = false;
+        }
+        return text;
+    }
+
+    /**
+     * Hàm fetch với Exponential Backoff
+     */
+    async function fetchWithBackoff(url, options, retries = 3, delay = 1000) {
+        try {
+            const response = await fetch(url, options);
+            if (response.status === 429 && retries > 0) { // Too Many Requests
+                await new Promise(res => setTimeout(res, delay));
+                return fetchWithBackoff(url, options, retries - 1, delay * 2);
+            }
+            return response;
+        } catch (error) {
+            if (retries > 0) {
+                await new Promise(res => setTimeout(res, delay));
+                return fetchWithBackoff(url, options, retries - 1, delay * 2);
+            }
+            throw error;
+        }
+    }
+
+    // --- Gắn sự kiện cho Nút AI ---
+
+    // Nút B2: Tạo Mục tiêu SMART
+    document.getElementById('generate-smart-btn').addEventListener('click', async () => {
+        const problem = document.getElementById('smart-problem').value;
+        const businessGoal = document.getElementById('smart-business-goal').value;
+        const timeframe = document.getElementById('smart-timeframe').value;
+
+        // Yêu cầu AI chiến lược hơn
+        const systemInstruction = "Bạn là một nhà tư vấn chiến lược Truyền thông Nội bộ (IC) cấp cao. Hãy viết một bộ mục tiêu SMART (Specific, Measurable, Achievable, Relevant, Time-bound) bằng tiếng Việt. Quan trọng: Mục tiêu phải tập trung vào việc thay đổi KẾT QUẢ (outcome) và HÀNH VI (behavior), không chỉ là ĐẦU RA (output).";
+        const userPrompt = `Vấn đề của tôi là: "${problem}". Mục tiêu kinh doanh liên quan là: "${businessGoal}". Khung thời gian là: "${timeframe}". Hãy tạo 2 mục tiêu SMART: (1) một mục tiêu giải quyết vấn đề Open Rate, và (2) một mục tiêu giải quyết vấn đề "Không được lắng nghe".`;
+
+        const result = await callGemini(
+            userPrompt,
+            systemInstruction,
+            document.getElementById('smart-output'),
+            document.getElementById('smart-loading'),
+            document.getElementById('generate-smart-btn')
+        );
+
+        if (result) {
+            isSmartGenerated = true;
+            validateStep(2); // Kích hoạt nút Tiếp theo
+        }
+    });
+
+    // Nút B4: Tạo Thông điệp
+    document.getElementById('generate-message-btn').addEventListener('click', async () => {
+        const goal = document.getElementById('message-goal').value;
+        const audience = document.getElementById('message-audience').value;
+
+        // Yêu cầu AI chiến lược hơn
+        const systemInstruction = "Bạn là một Copywriter chiến lược. Hãy tạo một 'Ngôi nhà Thông điệp' (Message House) bằng tiếng Việt. Cấu trúc phải bao gồm: 1 'MÁI NHÀ' (Thông điệp bao trùm, truyền cảm hứng, tập trung vào TÁI THIẾT LÒNG TIN) và 3 'CỘT TRỤ' (Thông điệp hỗ trợ, mang tính HÀNH ĐỘNG, giải quyết WIIFM cho nhân viên). Trả lời ngắn gọn, mạnh mẽ và rõ ràng.";
+        const userPrompt = `Mục tiêu chiến dịch là: "${goal}". Khán giả chính là: "${audience}". Hãy tạo Ngôi nhà Thông điệp.`;
+
+        const result = await callGemini(
+            userPrompt,
+            systemInstruction,
+            document.getElementById('message-output'),
+            document.getElementById('message-loading'),
+            document.getElementById('generate-message-btn')
+        );
+
+        if (result) {
+            isMessageGenerated = true;
+            validateStep(4); // Kích hoạt nút Tiếp theo
+        }
+    });
+
+    // --- KHỞI CHẠY ---
+    initTabs(); // Khởi chạy listener cho các tab
+    showStep(currentStep); // Hiển thị bước đầu tiên
+});
+</script>
+
+</body>
+</html>
+
